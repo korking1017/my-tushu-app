@@ -1,6 +1,9 @@
 let html5QrCode = null;
+let isScanning = false;
 
 export async function startScanner(onSuccess, onError) {
+    if (isScanning) return;
+    
     const scannerContainer = document.createElement('div');
     scannerContainer.id = 'qr-reader';
     scannerContainer.style.width = '100%';
@@ -14,19 +17,28 @@ export async function startScanner(onSuccess, onError) {
     modal.classList.remove('hidden');
 
     html5QrCode = new Html5Qrcode("qr-reader");
+    const config = {
+        fps: 15,
+        qrbox: { width: 280, height: 280 },
+        aspectRatio: 1.0,
+        disableFlip: false
+    };
+    
     try {
         await html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            config,
             (decodedText) => {
+                console.log('识别成功:', decodedText);
                 stopScanner();
                 modal.classList.add('hidden');
                 onSuccess(decodedText);
             },
-            (error) => {
+            (errorMessage) => {
                 // 忽略扫描过程中的错误
             }
         );
+        isScanning = true;
     } catch (err) {
         console.error('启动摄像头失败:', err);
         onError('无法启动摄像头，请检查权限');
@@ -37,6 +49,7 @@ export async function startScanner(onSuccess, onError) {
 export function stopScanner() {
     if (html5QrCode && html5QrCode.isScanning) {
         html5QrCode.stop().catch(console.error);
+        isScanning = false;
     }
 }
 

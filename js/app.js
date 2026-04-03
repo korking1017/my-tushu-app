@@ -294,7 +294,7 @@ async function showRereadDialog(bookId) {
     };
 }
 
-// 添加/编辑图书表单
+// 添加/编辑图书表单（包含手动获取信息按钮）
 async function showAddBookForm(book = null) {
     const isEdit = !!book;
     const formHtml = `
@@ -304,6 +304,9 @@ async function showAddBookForm(book = null) {
                 <div class="flex">
                     <input type="text" id="isbn" value="${escapeHtml(book?.isbn || '')}" class="flex-1 border rounded-l p-2" placeholder="扫描或手动输入">
                     <button type="button" id="scan-btn" class="bg-blue-500 text-white px-3 rounded-r">扫码</button>
+                </div>
+                <div class="mt-1">
+                    <button type="button" id="fetch-info-btn" class="text-sm text-blue-500">📖 根据ISBN获取图书信息</button>
                 </div>
             </div>
             <div>
@@ -353,33 +356,60 @@ async function showAddBookForm(book = null) {
 
     const form = document.getElementById('book-form');
     const scanBtn = document.getElementById('scan-btn');
+    const fetchInfoBtn = document.getElementById('fetch-info-btn');
+    const isbnInput = document.getElementById('isbn');
+    const titleInput = document.getElementById('title');
+    const authorInput = document.getElementById('author');
+    const coverInput = document.getElementById('cover');
+
+    // 扫码功能
     scanBtn?.addEventListener('click', async () => {
         modalContainer.classList.add('hidden');
         await startScanner(async (isbn) => {
+            console.log('扫码获取的ISBN:', isbn);
             try {
                 const info = await fetchBookInfoByIsbn(isbn);
-                document.getElementById('isbn').value = isbn;
-                document.getElementById('title').value = info.title;
-                document.getElementById('author').value = info.author;
-                document.getElementById('cover').value = info.cover;
+                isbnInput.value = isbn;
+                titleInput.value = info.title;
+                authorInput.value = info.author;
+                coverInput.value = info.cover;
                 modalContainer.classList.remove('hidden');
             } catch (err) {
                 alert('获取图书信息失败，请手动填写');
                 modalContainer.classList.remove('hidden');
             }
         }, (err) => {
+            console.error('扫码错误:', err);
             alert(err);
             modalContainer.classList.remove('hidden');
         });
     });
 
+    // 手动输入ISBN后获取信息
+    fetchInfoBtn?.addEventListener('click', async () => {
+        const isbn = isbnInput.value.trim();
+        if (!isbn) {
+            alert('请输入ISBN号');
+            return;
+        }
+        try {
+            const info = await fetchBookInfoByIsbn(isbn);
+            titleInput.value = info.title;
+            authorInput.value = info.author;
+            coverInput.value = info.cover;
+            alert('已自动填充书名、作者和封面');
+        } catch (err) {
+            alert('未找到图书信息，请手动填写');
+        }
+    });
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const bookData = {
-            isbn: document.getElementById('isbn').value,
-            title: document.getElementById('title').value,
-            author: document.getElementById('author').value,
-            cover: document.getElementById('cover').value,
+            isbn: isbnInput.value,
+            title: titleInput.value,
+            author: authorInput.value,
+            cover: coverInput.value,
             category: document.getElementById('category').value,
             isTreasury: document.getElementById('isTreasury').checked,
             location: document.getElementById('location').value,
@@ -492,7 +522,7 @@ async function showEditRoleForm(id) {
     if (role) showAddRoleForm(role);
 }
 
-// 统计视图（修复图表渲染）
+// 统计视图（带错误处理）
 async function showStatsView() {
     try {
         const books = await getAllBooks();
@@ -532,7 +562,6 @@ async function showStatsView() {
             </div>
         `;
 
-        // 延迟初始化图表，确保 DOM 已渲染
         setTimeout(() => {
             const catCanvas = document.getElementById('categoryChart');
             const roleCanvas = document.getElementById('roleChart');
