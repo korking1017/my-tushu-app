@@ -1,0 +1,36 @@
+/* 自定义样式 */
+.book-card {
+    transition: transform 0.2s;
+}
+.book-card:hover {
+    transform: translateY(-2px);
+}
+.treasury-border {
+    border-left: 4px solid #fbbf24;
+}
+.list-item-treasury {
+    background-color: #fffbeb;
+}
+.nav-btn.active {
+    color: #3b82f6;
+}
+.hidden {
+    display: none;
+}
+/* 视图切换 */
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+}
+.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+/* 加载状态 */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}

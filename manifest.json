@@ -1,0 +1,41 @@
+{
+    "id" : "H557A7202",
+    "name" : "家庭图书管理助手",
+    "version" : {
+        "code" : 100,
+        "name" : "1.0.0"
+    },
+    "launch_path" : "index.html",
+    "description" : "家庭图书管理助手，支持扫码、阅读记录、统计",
+    "icons" : {
+        "72" : "icons/icon-72x72.png",
+        "192" : "icons/icon-192x192.png",
+        "512" : "icons/icon-512x512.png"
+    },
+    "developer" : {
+        "name" : "korking1017",
+        "email" : ""
+    },
+    "permissions" : {
+        "Camera" : {
+            "description" : "用于扫描图书ISBN条码"
+        }
+    },
+    "plus" : {
+        "screenOrientation" : [ "landscape-primary" ],
+        "distribute" : {
+            "android" : {
+                "permissions" : [
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>"
+                ]
+            },
+            "ios" : {
+                "dSYMs" : false
+            }
+        },
+        "statusbar" : {
+            "immersed" : true
+        }
+    }
+}
